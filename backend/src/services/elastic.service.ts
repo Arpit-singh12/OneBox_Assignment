@@ -66,3 +66,33 @@ export async function EsStoreEmail(email: any, folder: string, account: string) 
         console.log('❗ Error storing email:', error)
     }
 }
+
+export async function searchEmails(query: string, account: string, folder: string) {
+  const must: any[] = [];
+
+  if (account) must.push({ match: { account } });
+  if (folder) must.push({ match: { folder } });
+  if (query) must.push({ match: { subject: query } }); // We can improve this later for fuzzy match
+
+  const esQuery = {
+    index: 'emails',
+    query: {
+      bool: {
+        must
+      }
+    }
+  };
+
+  console.log("Elasticsearch query being sent:\n", JSON.stringify(esQuery, null, 2));
+
+  try {
+    const response = await client.search(esQuery);
+    console.log("Raw ES response:\n", JSON.stringify(response.hits.hits, null, 2));
+    
+    const results = response.hits.hits.map(hit => hit._source);
+    return results;
+  } catch (error) {
+    console.error("❌ Error searching emails in Elasticsearch:", error);
+    return [];
+  }
+}
