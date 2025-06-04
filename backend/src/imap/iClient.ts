@@ -1,6 +1,7 @@
 import { ImapFlow } from 'imapflow';
 import { simpleParser } from 'mailparser';
 import { format } from 'date-fns';
+import { EsStoreEmail } from '../services/elastic.service';
 
 export async function connectAndSync(account: {
   email: string;
@@ -32,7 +33,8 @@ export async function connectAndSync(account: {
   for await (const msg of client.fetch({ since }, { uid: true, envelope: true, source: true })) {
     if (msg.source) {
       const parsed = await simpleParser(msg.source);
-      console.log(`📨 [${account.email}] Subject: ${parsed.subject}`);
+      console.log(`[${account.email}] Subject: ${parsed.subject}`);
+      await EsStoreEmail(parsed, 'INBOX', account.email);
     } else {
       console.warn(`[${account.email}] No source found for message with UID: ${msg.uid}`);
     }
@@ -47,6 +49,7 @@ export async function connectAndSync(account: {
       if (message?.source) {
         const parsed = await simpleParser(message.source);
         console.log(`[${account.email}] New: ${parsed.subject}`);
+        await EsStoreEmail(parsed, 'INBOX', account.email);
       } else {
         console.warn(`[${account.email}] No source found for the new message.`);
       }

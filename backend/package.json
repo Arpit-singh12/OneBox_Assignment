@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "nodemon dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -21,9 +21,12 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "^9.0.2",
+    "@elastic/elasticsearch": "^8.18.2",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "imapflow": "^1.0.187"
+    "imapflow": "^1.0.187",
+    "mailparser": "^3.7.3",
+    "nodemon": "^3.1.10"
   }
 }

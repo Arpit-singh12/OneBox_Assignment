@@ -1,19 +1,19 @@
-import express from 'express';
 import dotenv from 'dotenv';
+import { EmailIndex } from './services/elastic.service';
+import app from './app';
 
 dotenv.config();
 
-const app = express();
-
 const PORT = process.env.PORT || 5000;
 
-app.use(express.json());
-
-app.get('/', (_req, res) => {
-    res.send('Backend is running');
-});
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port http://localhost:${PORT}`);
-});
-
+async function serverStart() {
+    try {
+        await EmailIndex();
+        app.listen(PORT, () => {
+            console.log(`Server running at http://localhost:${PORT}`);
+        });
+    } catch (error) {
+        console.log("Failed to start server:", error);
+    }
+}
+serverStart();

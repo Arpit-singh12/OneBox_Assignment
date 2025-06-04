@@ -5,8 +5,10 @@ import accountRoutes from './routes/Account.routes';
 dotenv.config();
 
 const app = express();
+
 app.use(express.json());
-app.use('/accounts', accountRoutes);
+
+app.use('/api/accounts', accountRoutes);
 
 app.get('/', (_req, res) => {
     res.send('Backend is running');
