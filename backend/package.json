@@ -27,6 +27,7 @@
     "express": "^5.1.0",
     "imapflow": "^1.0.187",
     "mailparser": "^3.7.3",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "openai": "^5.1.0"
   }
 }

@@ -10,13 +10,14 @@ const app = express();
 
 app.use(express.json());
 
+// Route for adding or syncing accounts...
 app.use('/api/accounts', accountRoutes);
 
 
 //setting routes for search mails using folder, account, text....
-
 app.use('/api/emails', emailRoutes);
 
+// just adding a check to check backend is running...
 app.get('/', (_req, res) => {
     res.send('Backend is running');
 });

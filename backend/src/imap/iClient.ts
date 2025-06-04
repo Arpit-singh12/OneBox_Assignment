@@ -2,6 +2,7 @@ import { ImapFlow } from 'imapflow';
 import { simpleParser } from 'mailparser';
 import { format } from 'date-fns';
 import { EsStoreEmail } from '../services/elastic.service';
+import { categorizeEmail } from '../Category/categorizer';  
 
 export async function connectAndSync(account: {
   email: string;
@@ -23,10 +24,8 @@ export async function connectAndSync(account: {
   await client.connect();
   console.log(`Connected to ${account.email}`);
 
-  
   await client.mailboxOpen('INBOX');
 
-  
   const since = format(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), 'dd-MMM-yyyy');
 
   // Fetching last 30 days of emails from the server...
@@ -34,7 +33,13 @@ export async function connectAndSync(account: {
     if (msg.source) {
       const parsed = await simpleParser(msg.source);
       console.log(`[${account.email}] Subject: ${parsed.subject}`);
-      await EsStoreEmail(parsed, 'INBOX', account.email);
+
+      // Categorize the email
+      const category = await categorizeEmail(parsed.subject || '', parsed.text || '');
+      console.log(`Category: ${category}`);
+
+      // Pass category to Elasticsearch storage
+      await EsStoreEmail(parsed, 'INBOX', account.email, category ?? undefined);
     } else {
       console.warn(`[${account.email}] No source found for message with UID: ${msg.uid}`);
     }
@@ -49,7 +54,13 @@ export async function connectAndSync(account: {
       if (message?.source) {
         const parsed = await simpleParser(message.source);
         console.log(`[${account.email}] New: ${parsed.subject}`);
-        await EsStoreEmail(parsed, 'INBOX', account.email);
+
+        // Categorize the new email
+        const category = await categorizeEmail(parsed.subject || '', parsed.text || '');
+        console.log(`Category: ${category}`);
+
+        // Store with category
+        await EsStoreEmail(parsed, 'INBOX', account.email, category ?? undefined);
       } else {
         console.warn(`[${account.email}] No source found for the new message.`);
       }
