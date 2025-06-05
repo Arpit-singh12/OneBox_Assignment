@@ -1,12 +1,12 @@
 import { OpenAI } from 'openai';
+import { notifySlack, triggerInterestedWebhook } from '../services/webhook.service';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, 
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
-// List of supported email categories.
 
-
+//Required Categories..
 export const EmailCategories = [
   'Interested',
   'Action required',
@@ -17,6 +17,8 @@ export const EmailCategories = [
   'Out of Office',
 ] as const;
 
+
+//Passing AI prompt to categories emails...based on subject, sender, account...
 export type EmailCategory = (typeof EmailCategories)[number];
 
 /**
@@ -25,7 +27,11 @@ export type EmailCategory = (typeof EmailCategories)[number];
  * @param body Body text of the email
  * @returns Predicted category as a string
  */
-export async function categorizeEmail(subject: string, body: string): Promise<EmailCategory | null> {
+export async function categorizeEmail(
+  subject: string,
+  body: string,
+  fullEmail?: any  
+): Promise<EmailCategory | null> {
   try {
     const prompt = `
 You are an assistant that categorizes email content into one of the following categories:
@@ -34,6 +40,7 @@ You are an assistant that categorizes email content into one of the following ca
 - Not Interested
 - Spam
 - Out of Office
+- Action Required
 
 Only reply with one of the above categories. Do not include any explanation.
 
@@ -42,7 +49,7 @@ Email Body: ${body}
 `;
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4', // Use gpt-4 or gpt-3.5-turbo
+      model: 'gpt-4',
       messages: [
         { role: 'system', content: 'You are a helpful assistant.' },
         { role: 'user', content: prompt },
@@ -53,6 +60,15 @@ Email Body: ${body}
     const category = response.choices[0].message.content?.trim() ?? '';
 
     if (EmailCategories.includes(category as EmailCategory)) {
+      
+      // On getting Interested Category Slack and Webhook URL triggered...
+      if (category === 'Interested' && fullEmail) {
+        await Promise.all([
+          notifySlack(fullEmail),
+          triggerInterestedWebhook(fullEmail),
+        ]);
+      }
+
       return category as EmailCategory;
     }
 
