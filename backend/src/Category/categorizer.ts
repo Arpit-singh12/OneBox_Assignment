@@ -1,12 +1,12 @@
 import { OpenAI } from 'openai';
 import { notifySlack, triggerInterestedWebhook } from '../services/webhook.service';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const openaiApiKey = process.env.OPENAI_API_KEY;
+const openai = openaiApiKey && !openaiApiKey.includes('dummy')
+  ? new OpenAI({ apiKey: openaiApiKey })
+  : null;
 
-
-//Required Categories..
+// Required Categories
 export const EmailCategories = [
   'Interested',
   'Action required',
@@ -17,8 +17,6 @@ export const EmailCategories = [
   'Out of Office',
 ] as const;
 
-
-//Passing AI prompt to categories emails...based on subject, sender, account...
 export type EmailCategory = (typeof EmailCategories)[number];
 
 /**
@@ -30,8 +28,22 @@ export type EmailCategory = (typeof EmailCategories)[number];
 export async function categorizeEmail(
   subject: string,
   body: string,
-  fullEmail?: any  
+  fullEmail?: any
 ): Promise<EmailCategory | null> {
+  // Fallback: Mock category for demo without OpenAI
+  if (!openai) {
+    console.warn('Skipping OpenAI call (API key missing or dummy). Returning mocked category.');
+    const mockCategory: EmailCategory = 'Interested'; // You can change this
+    if (mockCategory === 'Interested' && fullEmail) {
+      console.log('Mock triggering Slack/Webhook...');
+      await Promise.all([
+        notifySlack(fullEmail),
+        triggerInterestedWebhook(fullEmail),
+      ]);
+    }
+    return mockCategory;
+  }
+
   try {
     const prompt = `
 You are an assistant that categorizes email content into one of the following categories:
@@ -60,8 +72,6 @@ Email Body: ${body}
     const category = response.choices[0].message.content?.trim() ?? '';
 
     if (EmailCategories.includes(category as EmailCategory)) {
-      
-      // On getting Interested Category Slack and Webhook URL triggered...
       if (category === 'Interested' && fullEmail) {
         await Promise.all([
           notifySlack(fullEmail),
