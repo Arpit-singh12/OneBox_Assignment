@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import accountRoutes from './routes/Account.routes';
 import emailRoutes from './routes/Emails.routes';
+import cors from 'cors';
 
 
 dotenv.config();
@@ -9,6 +10,9 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
+
+app.use(cors());
+
 
 // Route for adding or syncing accounts...
 app.use('/api/accounts', accountRoutes);

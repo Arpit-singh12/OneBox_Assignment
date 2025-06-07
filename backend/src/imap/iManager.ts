@@ -16,6 +16,7 @@ export async function addImapAccount(account: {
 
   try {
     await connectAndSync(account);
+    console.log("tryinng to connect") ////check
     connectedAccounts[account.email] = true;
     console.log(`Successfully connected to ${account.email}`);
   } catch (error) {

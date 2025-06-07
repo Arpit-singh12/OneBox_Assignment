@@ -123,7 +123,7 @@ Server is running on port <PORT>
 Recommended to use Postman
 
 1. Create IMAP account get your key password with you
-2. Use Post method http://localhost:PORT/account
+2. Use Post method http://localhost:5000/api/accounts
 
 3. Make sure Postman read content on json format
 
@@ -138,13 +138,13 @@ Recommended to use Postman
 
 
 5. Search for emails:-
-Use GET method http://localhost:PORT/account/search/category?query=demo&account=your@gmail.com&folder=INBOX
+Use GET method http://localhost:PORT/api/account/search/category?query=demo&account=your@gmail.com&folder=INBOX
 
 
 Note:
     Some issue you can tackle:-
     > Gmail IMAP login failed? Make sure you use an App password.
-    > Have ElasticSearch Error take a look and check docker is running on port 9200.x
+    > Have ElasticSearch Error take a look and check docker is running on port 9200.
     > for categorisation issue check you API key and declaration of Key.
 
 

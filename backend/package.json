@@ -23,12 +23,14 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.18.2",
+    "@langchain/openai": "^0.5.12",
     "axios": "^1.9.0",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "imapflow": "^1.0.187",
+    "langchain": "^0.3.27",
     "mailparser": "^3.7.3",
     "nodemon": "^3.1.10",
     "openai": "^5.1.0"

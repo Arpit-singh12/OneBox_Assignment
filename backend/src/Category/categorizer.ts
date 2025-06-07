@@ -14,6 +14,7 @@ export const EmailCategories = [
   'Meeting Booked',
   'Not Interested',
   'Spam',
+  'Promotions',
   'Out of Office',
 ] as const;
 

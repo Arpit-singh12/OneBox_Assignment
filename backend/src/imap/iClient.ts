@@ -23,6 +23,7 @@ export async function connectAndSync(account: {
   });
 
   await client.connect();
+  console.log("Connect successfully to IMAP server")
   console.log(`Connected to ${account.email}`);
 
   await client.mailboxOpen('INBOX');
