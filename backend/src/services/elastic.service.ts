@@ -90,11 +90,11 @@ export async function searchEmails(query: string, account: string, folder: strin
     }
   };
 
-  console.log("Elasticsearch query being sent:\n", JSON.stringify(esQuery, null, 2));
+  console.log("ES query sent successfully:\n", JSON.stringify(esQuery, null, 2));
 
   try {
     const response = await client.search(esQuery);
-    console.log("Raw ES response:\n", JSON.stringify(response.hits.hits, null, 2));
+    console.log("ES raw response:\n", JSON.stringify(response.hits.hits, null, 2));
 
     const results = response.hits.hits.map(hit => hit._source);
     return results;

@@ -1,11 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
 dotenv.config();
-
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
 // categories for the ai API to specify mails..
+
 const CATEGORY_OPTIONS = [
   'Interested',
   'Action required',
@@ -44,5 +44,6 @@ Body: ${body}
   } catch (error) {
     console.error('Error in categorizing email:', error);
     return 'Uncategorized';
+    
   }
 }

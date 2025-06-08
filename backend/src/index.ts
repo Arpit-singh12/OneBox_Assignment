@@ -12,9 +12,11 @@ async function serverStart() {
         await EmailIndex();
         app.listen(PORT, () => {
             console.log(`Server running at http://localhost:${PORT}`);
+            
         });
     } catch (error) {
         console.log("Failed to start server:", error);
+
     }
 }
 serverStart();

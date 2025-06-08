@@ -3,7 +3,7 @@ import { SlackWebhook_URL, INTERESTED_WEBHOOK_URL } from '../config/notification
 
 export async function sendSlackNotification(message: string) {
   if (!SlackWebhook_URL) {
-    console.warn('Slack webhook URL is not configured.');
+    console.warn('Slack URL is not configured.');
     return;
   }
 
@@ -13,7 +13,7 @@ export async function sendSlackNotification(message: string) {
     });
     console.log('Slack notification sent.');
   } catch (error) {
-    console.error('Error sending Slack notification:', error);
+    console.error('Error in sending Slack notification:', error);
   }
 }
 
