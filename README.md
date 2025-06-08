@@ -46,16 +46,39 @@ Assignment - Build a Feature-Rich Onebox for Emails
 -- **Node.js** with **Express**
 -- **TypeScript**
 -- **Dotenv**
--- **Axios**
+-- **LongChain + Choroma**
 -- **IMAP** ("imapflow")
--- **ElasticSearch**
+-- **ElasticSearch via Docker**
 -- **OpenAI/Gemini API**
 -- **Slack Webhooks**
--- **Docker**
 -- **Mailparser**
 
 
 ---
+
+## Folder Structure
+
+backend/
+── src/
+   ── controllers/
+   ── routes/
+   ── imap/
+   ── services/
+   ── utils/
+   ── index.ts
+
+── .env
+── package.json
+── tsconfig.json
+── docker-compose.yml
+
+
+## .env setup
+locate/create ".env" file and then add the following:-
+
+GEMINI_API_KEY='Enter you API key'/GEMINI_API_KEY='Enter your Gemini API key here'
+SlackWebhook_URL='Enter the URL'
+INTERESTED_WEBHOOK_URL='Enter the URL'
 
 
 ## Run this Backend Project Locally...
@@ -83,21 +106,11 @@ Carefully install the following before running the backend:-
 
 "git clone https://github.com/Arpit-singh12/OneBox_Assignment.git"
 
-2. Set up Environmental variables
-
-locate/create ".env" file and then add the following:-
-
-2.1 OPENAI_API_KEY='Enter you API key'/GEMINI_API_KEY='Enter your Gemini API key here'
-2.2 SlackWebhook_URL='Enter the URL'
-2.3 INTERESTED_WEBHOOK_URL='Enter the URL'
-
-2.4 ElasticSearchNode = http://localhost:9200
-
-3. Install all dependencies
+2. Install all dependencies
 
 **npm install**
 
-4. Run ElasticSearch using Docker
+3. Run ElasticSearch using Docker
 
 Note: you can use my docker-compose.yml file.
 
@@ -107,7 +120,7 @@ On terminal:
     >docker-compose down to down the docker server and then again pull
     (This is personal Tip if you caught any error in ES you can do this...)
 
-5. Start the Development server
+4. Start the Development server
 
 **npm run dev**
 
@@ -140,50 +153,26 @@ Recommended to use Postman
 5. Search for emails:-
 Use GET method http://localhost:PORT/api/account/search/category?query=demo&account=your@gmail.com&folder=INBOX
 
+6. API 5: Suggest AI Reply (Gemini + Vector): 
+
+POST http://localhost:5000/api/reply/suggest
+
+BODY:
+{
+  "subject": "Let's schedule an interview",
+  "body": "You've been shortlisted. Please share your availability.",
+  "email": "hr@example.com"
+}
+
 
 Note:
-    Some issue you can tackle:-
-    > Gmail IMAP login failed? Make sure you use an App password.
-    > Have ElasticSearch Error take a look and check docker is running on port 9200.
-    > for categorisation issue check you API key and declaration of Key.
+Some issue you can tackle:-
+> Gmail IMAP login failed? Make sure you use an App password.
+> Have ElasticSearch Error take a look and check docker is running on port 9200.
+> for categorisation issue check you API key and declaration of Key.
 
 
-
--Some Part of this Codebase is assisted by Chatgpt for some structure of tackling errors...
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-To check the synced/stored mails: http://localhost:9200/emails/_search?pretty (Consider to verify your own host)
+## Credits:
+--Some Part of this Codebase is assisted by Chatgpt for some structure of tackling errors.
+--SlackWebhook Documentation.
+--Vectordb and Chroma documentaion.
