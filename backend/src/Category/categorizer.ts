@@ -1,76 +1,64 @@
-import { OpenAI } from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { notifySlack, triggerInterestedWebhook } from '../services/webhook.service';
 
-const openaiApiKey = process.env.OPENAI_API_KEY;
-const openai = openaiApiKey && !openaiApiKey.includes('dummy')
-  ? new OpenAI({ apiKey: openaiApiKey })
-  : null;
+// Gemini Setup...
 
-// Required Categories
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+// General categories...
+
 export const EmailCategories = [
   'Interested',
   'Action required',
-  'Social',
   'Meeting Booked',
   'Not Interested',
   'Spam',
-  'Promotions',
   'Out of Office',
+  'Action Required',
 ] as const;
 
 export type EmailCategory = (typeof EmailCategories)[number];
 
 /**
- * Prompts the AI to categorize the email content.
- * @param subject Subject of the email
- * @param body Body text of the email
- * @returns Predicted category as a string
+ * Uses Gemini to categorize an email into a predefined category.
+ * @param subject Email subject
+ * @param body Email plain text content
+ * @param fullEmail (Optional) original parsed email used for webhooks
  */
+
+
 export async function categorizeEmail(
   subject: string,
   body: string,
   fullEmail?: any
 ): Promise<EmailCategory | null> {
-  // Fallback: Mock category for demo without OpenAI
-  if (!openai) {
-    console.warn('Skipping OpenAI call (API key missing or dummy). Returning mocked category.');
-    const mockCategory: EmailCategory = 'Interested'; // You can change this
-    if (mockCategory === 'Interested' && fullEmail) {
-      console.log('Mock triggering Slack/Webhook...');
-      await Promise.all([
-        notifySlack(fullEmail),
-        triggerInterestedWebhook(fullEmail),
-      ]);
-    }
-    return mockCategory;
-  }
-
   try {
     const prompt = `
 You are an assistant that categorizes email content into one of the following categories:
 - Interested
+- Action required
 - Meeting Booked
 - Not Interested
 - Spam
 - Out of Office
 - Action Required
 
-Only reply with one of the above categories. Do not include any explanation.
+Only reply with the exact category name from the above list. Do not add any explanation.
 
 Email Subject: ${subject}
 Email Body: ${body}
-`;
+    `.trim();
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages: [
-        { role: 'system', content: 'You are a helpful assistant.' },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.2,
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
     });
 
-    const category = response.choices[0].message.content?.trim() ?? '';
+    const response = await result.response;
+    const category = response.text().trim();
 
     if (EmailCategories.includes(category as EmailCategory)) {
       if (category === 'Interested' && fullEmail) {
@@ -81,11 +69,13 @@ Email Body: ${body}
       }
 
       return category as EmailCategory;
+    } else {
+      console.warn('unknown category Found:', category);           // Gemini replied with unknown category...
     }
 
     return null;
   } catch (error) {
-    console.error('AI categorization failed:', error);
+    console.error('categorization failed:', error);
     return null;
   }
 }

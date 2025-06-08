@@ -1,7 +1,11 @@
-import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
+// categories for the ai API to specify mails..
 const CATEGORY_OPTIONS = [
   'Interested',
   'Action required',
@@ -13,29 +17,32 @@ const CATEGORY_OPTIONS = [
 ];
 
 export async function categorizeEmail(subject: string, body: string): Promise<string> {
-  const prompt = `You are an AI email assistant. Categorize the following email into one of the categories: ${CATEGORY_OPTIONS.join(", ")}.
+  const prompt = `
+You are an AI email assistant. Categorize the following email into one of these categories:
+
+${CATEGORY_OPTIONS.join(', ')}
+
+Do not explain. Just reply with the exact category.
 
 Subject: ${subject}
-
 Body: ${body}
-
-Reply with only the category.`;
+  `.trim();
 
   try {
-    const completion = await openai.chat.completions.create({
-      messages: [{ role: 'user', content: prompt }],
-      model: 'gpt-4o',
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
     });
+        
+    const response = await result.response;
+    const category = response.text().trim();
 
-    const category = completion.choices[0].message.content?.trim();
-
-    if (CATEGORY_OPTIONS.includes(category || '')) {
-      return category as string;
+    if (CATEGORY_OPTIONS.includes(category)) {
+      return category;
     }
 
     return 'Uncategorized';
-  } catch (err) {
-    console.error('Error categorizing email:', err);
+  } catch (error) {
+    console.error('Error in categorizing email:', error);
     return 'Uncategorized';
   }
 }

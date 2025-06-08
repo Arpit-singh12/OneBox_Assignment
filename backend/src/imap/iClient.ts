@@ -28,7 +28,7 @@ export async function connectAndSync(account: {
 
   await client.mailboxOpen('INBOX');
 
-  const since = format(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), 'dd-MMM-yyyy');
+  const since = format(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), 'dd-MMM-yyyy'); 
 
   // Fetching last 30 days of emails from the server...
   for await (const msg of client.fetch({ since }, { uid: true, envelope: true, source: true })) {
@@ -36,18 +36,19 @@ export async function connectAndSync(account: {
       const parsed = await simpleParser(msg.source);
       console.log(`[${account.email}] Subject: ${parsed.subject}`);
 
-      // Categorize the email
+      // Categorising the emails....
       const category = await categorizeEmail(parsed.subject || '', parsed.text || '');
       console.log(`Category: ${category}`);
 
-      // Pass category to Elasticsearch storage
+      // Passing category to Elasticsearch storage...
       await EsStoreEmail(parsed, 'INBOX', account.email, category ?? undefined);
     } else {
       console.warn(`[${account.email}] No source found for message with UID: ${msg.uid}`);
     }
   }
 
-  // Start IDLE to listen for new emails..
+  // Start control to listen for new emails....
+
   client.on('exists', async () => {
   console.log(`New email received for ${account.email}`);
   const lock = await client.getMailboxLock('INBOX');
@@ -58,6 +59,7 @@ export async function connectAndSync(account: {
       console.log(`[${account.email}] New: ${parsed.subject}`);
 
 //Categorize the email with full specs for the notification....
+
       const category = await categorizeEmail(parsed.subject || '', parsed.text || '', {
         subject: parsed.subject,
         from: parsed.from?.text,
@@ -72,6 +74,7 @@ export async function connectAndSync(account: {
       });
 
 //Adding category of mail before actually storing it...
+
       const parsedWithCategory = {
         ...parsed,
         category: category || 'Uncategorized',

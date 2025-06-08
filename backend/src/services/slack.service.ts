@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const SlackWebhook_URL = process.env.SlackWebhook_URL || '';
 
-// Confirmation..
+// Confirmation... 
 export async function notifySlack(emailData: {
   subject: string;
   from: string;
@@ -14,6 +14,7 @@ export async function notifySlack(emailData: {
     return;
   }
 
+  // Slack notification structure...
   const message = {
     text: ` *New Interested Email*\n*Subject:* ${emailData.subject}\n*From:* ${emailData.from}\n*To:* ${emailData.to}\n*Date:* ${emailData.date}`,
   };

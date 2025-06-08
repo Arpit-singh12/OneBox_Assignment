@@ -1,7 +1,7 @@
 import { Client } from '@elastic/elasticsearch';
 
 const client = new Client({
-  node: 'http://localhost:9200',
+  node: 'http://localhost:9200',     // Hosting of the ES service to validates credentials...
   headers: {
     'accept': 'application/vnd.elasticsearch+json; compatible-with=8',
     'content-type': 'application/vnd.elasticsearch+json; compatible-with=8'
@@ -34,7 +34,7 @@ export async function EmailIndex() {
             html: { type: 'text' },
             folder: { type: 'text' },
             account: { type: 'text' },
-            category: { type: 'keyword' } // Added category mapping
+            category: { type: 'keyword' } 
           },
         },
       });
@@ -62,7 +62,7 @@ export async function EsStoreEmail(email: any, folder: string, account: string, 
         html: email.html || '',
         folder,
         account,
-        category: category || 'Uncategorized' //Added category
+        category: category || 'Uncategorized' 
       },
     });
 

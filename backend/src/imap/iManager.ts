@@ -2,6 +2,7 @@ import { connectAndSync } from "./iClient";
 
 const connectedAccounts: Record<string, boolean> = {};
 
+// Setting fields for the identification of the user....
 export async function addImapAccount(account: {
   email: string;
   password: string;

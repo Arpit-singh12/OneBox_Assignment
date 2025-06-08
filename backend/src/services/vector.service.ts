@@ -1,7 +1,6 @@
-import { OpenAIEmbeddings } from '@langchain/openai';
 import { Document } from 'langchain/document';
+import { OpenAIEmbeddings } from '@langchain/openai';
 import { Chroma } from '@langchain/community/vectorstores/chroma';
-
 import * as path from 'path';
 
 const trainingData = [
@@ -22,11 +21,11 @@ const trainingData = [
   }
 ];
 
-// Optional: can make this configurable
 const CHROMA_COLLECTION_NAME = 'onebox-replies';
 
 let vectorStore: Chroma | null = null;
 
+//Accessing vector store for data...
 export async function getVectorStore(): Promise<Chroma> {
   if (vectorStore) return vectorStore;
 
@@ -40,13 +39,35 @@ export async function getVectorStore(): Promise<Chroma> {
 
   vectorStore = await Chroma.fromDocuments(docs, new OpenAIEmbeddings(), {
     collectionName: CHROMA_COLLECTION_NAME,
-    url: 'http://localhost:8000', // if you're running a local Chroma instance (optional)
+    url: 'http://localhost:8000', // optional local Chroma instance
     collectionMetadata: {
       type: 'job-replies',
     },
   });
 
-  console.log('✅ Vector store initialized and trained');
+  console.log('Vector store initialized and trained');
 
   return vectorStore;
+}
+
+/**
+ * RAG: Fetches the most relevant training content based on a query (email text).
+ * @param query Text from incoming email
+ * @returns Best matched product context string
+ */
+
+export async function getRelevantProductContext(query: string): Promise<string> {
+  try {
+    const store = await getVectorStore();
+    const results = await store.similaritySearch(query, 1);
+
+    if (results.length > 0) {
+      return results[0].pageContent;
+    } else {
+      return 'This product automates email replies using AI and booking links.';
+    }
+  } catch (error) {
+    console.error('Failed to fetch vector context:', error);
+    return 'Default AI reply assistant context.';
+  }
 }

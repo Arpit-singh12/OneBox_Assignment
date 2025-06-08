@@ -3,9 +3,9 @@ import { addAccount, searchEmailsByCategory } from '../controllers/Account.contr
 
 const router = express.Router();
 
+// router.post('/', addAccount);
 
-router.post('/', addAccount as (req: Request, res: Response, next: NextFunction) => any);     // router.post('/', addAccount);
-
+router.post('/', addAccount as (req: Request, res: Response, next: NextFunction) => any);     
 
 
 //route for search mails by category, folder or account

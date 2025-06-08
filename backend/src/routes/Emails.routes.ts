@@ -5,7 +5,8 @@ import { getEmailsByAccount } from '../controllers/Email.controller';
 
 const router = express.Router();
 
-// /api/emails?email=user@gmail.com
+// route URL:   /api/emails?email=user@gmail.com
+
 router.get('/', (req, res, next) => {
 	getEmailsByAccount(req, res).catch(next);
 });

@@ -25,6 +25,8 @@ export async function triggerInterestedWebhook(email: any) {
   }
 }
 
+// validation checking for the SLACK URL...
+
 export async function notifySlack(email: any) {
   if (!SlackWebhook_URL) {
     console.warn("SlackWebhook_URL not set");
@@ -38,11 +40,11 @@ export async function notifySlack(email: any) {
   try {
     await axios.post(SlackWebhook_URL, message);
     console.log("Slack notification sent for Interested email");
-  } catch (err) {
-    if (err instanceof Error) {
-      console.error("Failed to send Slack notification:", err.message);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("Failed to send Slack notification:", error.message);
     } else {
-      console.error("Failed to send Slack notification:", err);
+      console.error("Failed to send Slack notification:", error);
     }
   }
 }

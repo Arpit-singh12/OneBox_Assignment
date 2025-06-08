@@ -3,10 +3,12 @@ import { addImapAccount } from '../imap/iManager';
 import { searchEmails } from '../services/elastic.service';
 
 
-// creating controller function to handle adding accounts operations...
+// creating controller function to handle adding/syncing accounts operations...
+
 export async function addAccount(req: Request, res: Response){
     console.log("Incoming request body:", req.body);
     const { email, password, host, port, secure } = req.body;
+    
     if (!email || !password || !host || !port || secure === undefined) {
         return res.status(400).json({ error: 'All fields are required' });
     }
@@ -20,7 +22,7 @@ export async function addAccount(req: Request, res: Response){
     }
 }
 
-// To search emails by categories....
+// To search emails by categories specific ....
 
 export async function searchEmailsByCategory(req: Request, res: Response) {
     try {
@@ -29,10 +31,11 @@ export async function searchEmailsByCategory(req: Request, res: Response) {
         const folder = req.query.folder as string || '';
 
         if (!category) {
-            return res.status(400).json({ error: 'Category query param is required' });
+            return res.status(400).json({ error: 'Category query parameter is required' });
         }
 
-        // Searching emails with category as query
+        // Searching emails with category as query...
+        
         const results = await searchEmails(category, account, folder);
         res.status(200).json({ emails: results });
     } catch (error) {

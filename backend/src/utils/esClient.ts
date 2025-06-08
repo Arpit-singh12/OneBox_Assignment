@@ -1,6 +1,6 @@
 import { Client } from '@elastic/elasticsearch';
 
 
-export const client = new Client({
+export const client = new Client({     // ES service domain...
   node: 'http://localhost:9200'       // No authentication required...
 });

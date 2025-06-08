@@ -1,49 +1,57 @@
-import { OpenAI } from 'openai';
-import { getVectorStore } from './vector.service';
-import { EmailCategory } from '../Category/categorizer';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import dotenv from 'dotenv';
+dotenv.config();
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { getRelevantProductContext } from './vector.service';
 
-export async function suggestReply(subject: string, body: string): Promise<string> {
-  const vectorStore = await getVectorStore();
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
-  const query = `${subject} ${body}`;
-  const results = await vectorStore.similaritySearch(query, 3);
+/**
+ * Suggests a reply based on the email + context using Gemini
+ * @param subject Email subject
+ * @param body Email body
+ * @param emailAddress Email recipient
+ * @returns AI suggested reply as string
+ */
 
-  const retrievedContext = results.map(r => r.pageContent).join('\n\n');
+export async function suggestReply(
+  subject: string,
+  body: string,
+  emailAddress: string
+): Promise<string> {
+  try {
 
-  const prompt = `
-You are an AI assistant helping write email replies.
+    // Taking out relevant/trained text from vector...
+    const context = await getRelevantProductContext(subject + ' ' + body);
 
-Here is some context about our outreach agenda:
-${retrievedContext}
+    const prompt = `
+You are an AI assistant helping a user craft professional email replies.
 
-Now, write a polite and professional reply to the following email:
+Based on the context and the received email, suggest a concise and polite reply.
 
+Context (Product or Outreach Agenda):
+${context}
+
+---
+
+Email Received:
 Subject: ${subject}
+Body: ${body}
 
-Body:
-${body}
+---
 
-Make sure the reply is:
-- Respectful and context-aware
-- Aligned with the agenda
-- Includes booking link if the lead is interested
+Now write a reply (no intro or explanation, just the response):
+    `.trim();
 
-Reply:
-`;
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    });
 
-  const completion = await openai.chat.completions.create({
-    model: 'gpt-4',
-    messages: [
-      { role: 'system', content: 'You are a helpful AI email assistant.' },
-      { role: 'user', content: prompt },
-    ],
-    temperature: 0.5,
-  });
-
-  const reply = completion.choices[0].message.content?.trim() ?? '';
-  return reply;
+    const response = await result.response;
+    return response.text().trim();
+  } catch (error) {
+    console.error('Failed to generate Auto reply:', error);
+    return 'Sorry, No available responses...';
+  }
 }
