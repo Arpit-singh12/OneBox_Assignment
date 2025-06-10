@@ -37,6 +37,10 @@ Assignment - Build a Feature-Rich Onebox for Emails
 - Send **Slack notifications** for every new **Interested** email.
 - Trigger **webhooks** (use [webhook.site](https://webhook.site) as the webhook URL) for external automation when an email is marked as **Interested**.
 
+### **5. AI-Powered Suggested Replies**
+
+- Store the **product and outreach agenda** in a **vector database**.
+- Use **RAG (Retrieval-Augmented Generation)** with any LLM to suggest replies.
 
 ---
 
