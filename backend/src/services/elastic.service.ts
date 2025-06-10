@@ -72,6 +72,24 @@ export async function EsStoreEmail(email: any, folder: string, account: string, 
   }
 }
 
+//Getting total number of emails from the account...
+
+export async function EmailsCountForAccount(account: string): Promise<number> {
+  try {
+    const result = await client.count({
+      index: 'emails',
+      query:{
+        match: { account },
+      },
+    });
+    
+    return result.count || 0;
+  } catch (error) {
+    console.error(`Failed to count emails for ${account}:`, error);
+    return 0;
+  }
+}
+
 // searching mails using ES search...
 
 export async function searchEmails(query: string, account: string, folder: string) {

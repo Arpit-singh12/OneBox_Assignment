@@ -1,11 +1,14 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { addAccount, searchEmailsByCategory } from '../controllers/Account.controller';
+import { addAccount, searchEmailsByCategory, getAccounts } from '../controllers/Account.controller';
 
 const router = express.Router();
 
 // router.post('/', addAccount);
 
-router.post('/', addAccount as (req: Request, res: Response, next: NextFunction) => any);     
+router.post('/', addAccount as (req: Request, res: Response, next: NextFunction) => any);    
+
+// to access or see connected accounts...
+router.get('/', getAccounts);
 
 
 //route for search mails by category, folder or account

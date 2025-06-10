@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { addImapAccount } from '../imap/iManager';
-import { searchEmails } from '../services/elastic.service';
+import { addImapAccount, getConnectedAccounts } from '../imap/iManager';
+import { searchEmails, EmailsCountForAccount } from '../services/elastic.service';
 
 
 // creating controller function to handle adding/syncing accounts operations...
@@ -21,6 +21,37 @@ export async function addAccount(req: Request, res: Response){
         res.status(500).json({ error: 'Failed to add account' });
     }
 }
+
+export async function getAccounts(req: Request, res: Response){
+  try {
+    const accounts = getConnectedAccounts();
+   res.json(accounts);
+  } catch (error) {
+    console.log('failed to get connected accounts', error);
+    res.status(500).json({error: 'Account loading failed'});
+  }
+}
+
+// taking count of emails in the connected account...
+export async function getAllAccounts(req: Request, res: Response){
+    const accounts = Object.keys(ConnectedAccount);
+    const result = await Promise.all(
+        accounts.map(async (email) => {
+            const totalEmails = await EmailsCountForAccount(email); // takes count from ES...
+            return{
+                id: email,
+                email,
+                provider: 'IMAP',
+                status: 'connected',
+                lastSync: new Date().toISOString(),
+                totalEmails,
+            };
+            
+        })
+    );
+    res.json(result);
+}
+
 
 // To search emails by categories specific ....
 
