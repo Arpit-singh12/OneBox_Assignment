@@ -42,8 +42,8 @@ Assignment - Build a Feature-Rich Onebox for Emails
 - Store the **product and outreach agenda** in a **vector database**.
 - Use **RAG (Retrieval-Augmented Generation)** with any LLM to suggest replies.
 
-  ### **6. Frontend Interface**
- - Build a simple UI to display emails, filter by folder/account, and show AI categorization.
+### **6. Frontend Interface**
+- Build a simple UI to display emails, filter by folder/account, and show AI categorization.
 
 ---
 
